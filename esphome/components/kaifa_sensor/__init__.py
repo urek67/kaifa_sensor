@@ -2,18 +2,19 @@
 
 from esphome.components import sensor
 import esphome.config_validation as cv
+from esphome import pins
+from esphome import automation
+from esphome.const import CONF_ID
+import esphome.codegen as cg
 
-CODEOWNERS = ["@urek67"]
-DEPENDENCIES = ["uart"]
+kaifa_sensor_ns = cg.esphome_ns.namespace("kaifa_sensor")
+KaifaSensor = kaifa_sensor_ns.class_("KaifaSensor", sensor.Sensor, cg.Component)
 
-CONF_UART_ID = "uart_id"
-
-CONFIG_SCHEMA = cv.Schema(
-    {
-        cv.GenerateID(): cv.declare_id(sensor.Sensor),
-        cv.Required(CONF_UART_ID): cv.use_id(sensor.Sensor),
-    }
-)
+CONFIG_SCHEMA = sensor.sensor_schema(KaifaSensor).extend({
+    cv.Required("uart_id"): cv.use_id(cg.UARTComponent),
+}).extend(cv.COMPONENT_SCHEMA)
 
 def to_code(config):
-    pass  # Kommer ersättas av C++-registret
+    var = yield sensor.new_sensor(config)
+    uart = yield cg.get_variable(config["uart_id"])
+    cg.add(var.set_parent(uart))
