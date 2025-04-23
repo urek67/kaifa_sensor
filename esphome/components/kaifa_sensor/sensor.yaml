@@ -1,2 +1,10 @@
-platform: kaifa_sensor
-type: "sensor"
+platform: custom
+lambda: |-
+  auto kaifa = new KaifaSensor(id(uart_bus));
+  App.register_component(kaifa);
+  return {kaifa};
+
+sensors:
+  - name: "Import Energi"
+    unit_of_measurement: "kWh"
+    accuracy_decimals: 3
